@@ -1,0 +1,74 @@
+<%- include('header') %>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="joke-container">
+        <h1 class="mt-5">Joke of the Day</h1>
+        <div id="jokeDisplay">
+          <% if (jokes.type === "single") { %>
+          <div class="joke joke-single">
+            <p><%= jokes.joke %></p>
+          </div>
+          <% } else if (jokes.type === "twopart") { %>
+          <div class="joke joke-twopart">
+            <p><strong>Setup:</strong> <%= jokes.setup %></p>
+            <p><strong>Punchline:</strong> <%= jokes.delivery %></p>
+          </div>
+          <% } else { %>
+          <div class="joke error-message">
+            <p>Oops! Something went wrong. No joke to display.</p>
+          </div>
+          <% } %>
+        </div>
+       <button class="btn btn-success mt-3" id="fetchJokeBtn">Get Another Joke</button>
+       <!-- Add the laughing emoji image -->
+       <img src="/laugh1.jpeg" alt="Laughing Emoji" id="laughingEmoji" style="display: none;">
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('footer') %>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  // Function to fetch jokes
+  async function fetchJoke() {
+    try {
+      const response = await fetch("https://v2.jokeapi.dev/joke/Any");
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return null;
+    }
+  }
+
+  // Function to handle button click
+  document.getElementById("fetchJokeBtn").addEventListener("click", async () => {
+    const jokeDisplay = document.getElementById("jokeDisplay");
+    const laughingEmoji = document.getElementById("laughingEmoji");
+    const jokeData = await fetchJoke();
+    if (jokeData) {
+      let jokeHtml = "";
+      if (jokeData.type === "single") {
+        jokeHtml = `<div class="joke joke-single"><p>${jokeData.joke}</p></div>`;
+      } else if (jokeData.type === "twopart") {
+        jokeHtml = `<div class="joke joke-twopart"><p><strong>Setup:</strong> ${jokeData.setup}</p><p><strong>Punchline:</strong> ${jokeData.delivery}</p></div>`;
+      } else {
+        jokeHtml = `<div class="joke error-message"><p>Oops! Something went wrong. No joke to display.</p></div>`;
+      }
+      jokeDisplay.innerHTML = jokeHtml;
+      // Show the laughing emoji
+      laughingEmoji.style.display = "inline-block";
+      // Hide the laughing emoji after 3 seconds
+      setTimeout(() => {
+        laughingEmoji.style.display = "none";
+      }, 3000); // 3000 milliseconds = 3 seconds
+    }
+  });
+</script>
+</body>
+</html>
